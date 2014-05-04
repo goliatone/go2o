@@ -82,7 +82,55 @@
             return keys.indexOf(i) < 0;
         });
     };
+///////////////////////////////////////////////////
+/// HELPER JSON
+/// TODO: Implement as plugin?
+/// Go2o.use(Flattener);
+///////////////////////////////////////////////////
 
+    var Parser = {};
+    Parser.unflatten = function(data) {
+        "use strict";
+        if (Object(data) !== data || Array.isArray(data))
+            return data;
+        var result = {}, cur, prop, idx, last, temp;
+        for(var p in data) {
+            cur = result, prop = "", last = 0;
+            do {
+                idx = p.indexOf(".", last);
+                temp = p.substring(last, idx !== -1 ? idx : undefined);
+                cur = cur[prop] || (cur[prop] = (!isNaN(parseInt(temp)) ? [] : {}));
+                prop = temp;
+                last = idx + 1;
+            } while(idx >= 0);
+            cur[prop] = data[p];
+        }
+        return result[""];
+    };
+
+    Parser.flatten = function(data) {
+        var result = {};
+        function recurse (cur, prop) {
+            if (Object(cur) !== cur) {
+                result[prop] = cur;
+            } else if (Array.isArray(cur)) {
+                 for(var i=0, l=cur.length; i<l; i++)
+                     recurse(cur[i], prop ? prop+"."+i : ""+i);
+                if (l == 0)
+                    result[prop] = [];
+            } else {
+                var isEmpty = true;
+                for (var p in cur) {
+                    isEmpty = false;
+                    recurse(cur[p], prop ? prop+"."+p : p);
+                }
+                if (isEmpty)
+                    result[prop] = {};
+            }
+        }
+        recurse(data, "");
+        return result;
+    };
 ///////////////////////////////////////////////////
 // CONSTRUCTOR
 ///////////////////////////////////////////////////
@@ -125,11 +173,14 @@
         //If we do not have schema, then WTF?
         this.schema || (this.schema = {});
 
+        this.flattened = {};
+
         this.matchers = {};
         this.transformers = {};
         this.processors = {};
 
-        this.postprocessors = {};
+        this.preprocessors || (this.preprocessors = {});
+        this.postprocessors || (this.postprocessors = {});
 
         this.handledKeys = {};
 
@@ -141,14 +192,14 @@
 
         this.addTransformer('rename', function(path, name){
             console.log('=> rename %s to %s', path, name);
-            this.output[name] = this.source[path];
+            this.output[name] = this.flattened[path];
             return true;
         });
 
         this.addTransformer('collapse', function(path, name){
             console.log('=> collapse %s to %s', path, name);
             if(! this.output.hasOwnProperty(name)) this.output[name] = [];
-            this.output[name].push(this.source[path]);
+            this.output[name].push(this.flattened[path]);
             return true;
         });
 
@@ -157,17 +208,28 @@
 
         });*/
 
+        this.addPreprocessor('flattenPaths', function(){console.warn('flattenPaths')
+            this.flattened = Parser.flatten(this.source);
+        });
+
         this.addPostprocessor('mergeOrphans', function(){
-            var orphans = _diff(this.source, this.handledKeys);
+            var orphans = _diff(this.flattened, this.handledKeys);
             orphans.forEach(function(key){
-                this.output[key] = this.source[key];
+                this.output[key] = this.flattened[key];
             }, this);
+        });
+
+        this.addPostprocessor('unflattenPaths', function(){
+            this.output = Parser.unflatten(this.output);
         });
     };
 
     Go2o.prototype.run = function(data){
         console.log('parsing',data);
         this.source = _extend({}, data);
+
+        this.runPre();
+
         //For now we assume we want an Object as output
         //but we might want to go from Array to Object or from
         //Object to Array. That would be a transform in the 'root'
@@ -228,9 +290,23 @@
         this.postprocessors[id] = post;
     };
 
+    Go2o.prototype.addPreprocessor = function(id, post){
+        this.preprocessors[id] = post;
+    };
+
     Go2o.prototype.runPost = function(){
-        Object.keys(this.postprocessors).forEach(function(id){
-            this.postprocessors[id].call(this);
+        var processId;
+        Object.keys(this.post).forEach(function(id){
+            processId = this.post[id];
+            this.postprocessors[processId].call(this);
+        }, this);
+    };
+
+    Go2o.prototype.runPre = function(){
+        var processId;
+        Object.keys(this.pre).forEach(function(id){
+            processId = this.pre[id];
+            this.preprocessors[processId].call(this);
         }, this);
     };
 
