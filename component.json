@@ -1,0 +1,30 @@
+{
+  "name": "go2o",
+  "version": "0.0.1",
+  "description": "Simple Object to Object transformation library",
+  "homepage": "https://github.com/goliatone/go2o",
+	"repository": {
+		"type": "git",
+		"url": "git://github.com/goliatone/go2o.git"
+	},
+	 "bugs": {
+		"url": "https://github.com/goliatone/go2o/issues"
+	},
+	"author": {
+		"name": "goliatone",
+		"email": "hello@goliatone.com",
+		"url": "http://goliatone.com"
+	},
+	"licenses": [
+		{
+			"type": "MIT",
+			"url": "https://github.com/goliatone/go2o/blob/master/LICENSE-MIT"
+		}
+	],
+  "dependencies": {
+    "jquery": "~1.9.1",
+    "requirejs": "~2.1.4"
+  },
+  "devDependencies": {
+  }
+}
