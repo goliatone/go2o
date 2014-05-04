@@ -76,6 +76,8 @@ pids
 logs
 results
 
+### Locla Project
 npm-debug.log
 node_modules
 .coverage
+lib/*
