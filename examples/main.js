@@ -14,13 +14,18 @@ define(['go2o', 'jquery'], function (Go2o, $) {
      * WE HAVE OUR SOURCE OBJECT.
     */
     var json = {
+        _id:22222,
+        user:{
+            _id:33333,
+            name:'someting'
+        },
         name:'peperone',
         age:33,
         city:'New York',
         address1:'dekalb avenue',
         address2:'apt 34b',
         something:{
-            depp:{
+            deep:{
                 to:{
                     see:{
                         merging:true
@@ -44,7 +49,20 @@ define(['go2o', 'jquery'], function (Go2o, $) {
          * we want to apply.
          */
         var schema = {
-            post:['mergeOrphans'],
+            pre:  ['flattenPaths', 'renameAllIds'],
+            post: ['mergeOrphans', 'unflattenPaths'],
+            preprocessors:{
+                renameAllIds:function(){
+                    console.warn('peperone')
+                    Object.keys(this.flattened).forEach(function(path){
+                        console.info(path);
+                        if(!path.match(/_id/)) return;
+                        var out = path.replace(/_id/, 'id'),
+                            value = this.flattened[path];
+                        this.flattened[out] = value;
+                    }, this);
+                }
+            },
             schema:{
                 'name':{
                     rename:'nombre'
@@ -61,10 +79,12 @@ define(['go2o', 'jquery'], function (Go2o, $) {
                 },
                 address2:{
                     collapse:'direccion'
+                },
+                'something.deep.to.see.merging':{
+                    rename:'less.levels'
                 }
             }
         };
-
         var go = new Go2o(schema),
             output = go.run(data);
 
