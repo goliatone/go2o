@@ -13,7 +13,7 @@ Download the [production version][min] or the [development version][max].
 ## Development
 `npm install && bower install`
 
-If you need to `sudo` the `npm` command, you can try to:
+If you need to `sudo` the `npm` command, you can try to fix that annoyance:
 
 ```terminal
 sudo chown $(whoami) ~/.npm
