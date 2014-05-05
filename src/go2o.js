@@ -7,10 +7,10 @@
  */
 /* jshint strict: false, plusplus: true */
 /*global define: false, require: false, module: false, exports: false */
-(function (root, name, deps, factory) {
+(function(root, name, deps, factory) {
     "use strict";
     // Node
-     if(typeof deps === 'function') {
+    if (typeof deps === 'function') {
         factory = deps;
         deps = [];
     }
@@ -23,11 +23,14 @@
         define(name.toLowerCase(), deps, factory);
     } else {
         // Browser
-        var d, i = 0, global = root, old = global[name], mod;
-        while((d = deps[i]) !== undefined) deps[i++] = root[d];
+        var d, i = 0,
+            global = root,
+            old = global[name],
+            mod;
+        while ((d = deps[i]) !== undefined) deps[i++] = root[d];
         global[name] = mod = factory.apply(global, deps);
         //Export no 'conflict module', aliases the module.
-        mod.noConflict = function(){
+        mod.noConflict = function() {
             global[name] = old;
             return mod;
         };
@@ -40,12 +43,12 @@
      * @return {Object}        Resulting object from
      *                         meging target to params.
      */
-    var _extend= function extend(target) {
+    var _extend = function extend(target) {
         var sources = [].slice.call(arguments, 1);
-        sources.forEach(function (source) {
+        sources.forEach(function(source) {
             for (var property in source) {
-                if(source[property] && source[property].constructor &&
-                    source[property].constructor === Object){
+                if (source[property] && source[property].constructor &&
+                    source[property].constructor === Object) {
                     target[property] = target[property] || {};
                     target[property] = extend(target[property], source[property]);
                 } else target[property] = source[property];
@@ -59,34 +62,42 @@
      * available calls do not generate errors.
      * @return {Object} Console shim.
      */
-    var _shimConsole = function(){
+    var _shimConsole = function() {
         var empty = {},
-            con   = {},
-            noop  = function() {},
+            con = {},
+            noop = function() {},
             properties = 'memory'.split(','),
             methods = ('assert,clear,count,debug,dir,dirxml,error,exception,group,' +
-                       'groupCollapsed,groupEnd,info,log,markTimeline,profile,profileEnd,' +
-                       'table,time,timeEnd,timeStamp,trace,warn').split(','),
+                'groupCollapsed,groupEnd,info,log,markTimeline,profile,profileEnd,' +
+                'table,time,timeEnd,timeStamp,trace,warn').split(','),
             prop,
             method;
 
-        while (method = methods.pop())    con[method] = noop;
-        while (prop   = properties.pop()) con[prop]   = empty;
+        while (method = methods.pop()) con[method] = noop;
+        while (prop = properties.pop()) con[prop] = empty;
 
         return con;
     };
 
-    var _diff = function(src, tgt){
+    /**
+     * Get keys in the `src` object not
+     * present in the `tgt` object.
+     * @param  {Object} src Source Object
+     * @param  {Object} tgt Target Object
+     * @return {Array}      Array with keys
+     */
+    var _diff = function(src, tgt) {
         var keys = Object.keys(tgt);
-        return Object.keys(src).filter(function(i){
+        return Object.keys(src).filter(function(i) {
             return keys.indexOf(i) < 0;
         });
     };
-///////////////////////////////////////////////////
-/// HELPER JSON
-/// TODO: Implement as plugin?
-/// Go2o.use(Flattener);
-///////////////////////////////////////////////////
+
+    ///////////////////////////////////////////////////
+    /// HELPER JSON
+    /// TODO: Implement as plugin?
+    /// Go2o.use(Flattener);
+    ///////////////////////////////////////////////////
 
     var Parser = {};
     Parser.unflatten = function(data) {
@@ -94,7 +105,7 @@
         if (Object(data) !== data || Array.isArray(data))
             return data;
         var result = {}, cur, prop, idx, last, temp;
-        for(var p in data) {
+        for (var p in data) {
             cur = result, prop = "", last = 0;
             do {
                 idx = p.indexOf(".", last);
@@ -102,7 +113,7 @@
                 cur = cur[prop] || (cur[prop] = (!isNaN(parseInt(temp)) ? [] : {}));
                 prop = temp;
                 last = idx + 1;
-            } while(idx >= 0);
+            } while (idx >= 0);
             cur[prop] = data[p];
         }
         return result[""];
@@ -110,19 +121,20 @@
 
     Parser.flatten = function(data) {
         var result = {};
-        function recurse (cur, prop) {
+
+        function recurse(cur, prop) {
             if (Object(cur) !== cur) {
                 result[prop] = cur;
             } else if (Array.isArray(cur)) {
-                 for(var i=0, l=cur.length; i<l; i++)
-                     recurse(cur[i], prop ? prop+"."+i : ""+i);
+                for (var i = 0, l = cur.length; i < l; i++)
+                    recurse(cur[i], prop ? prop + "." + i : "" + i);
                 if (l == 0)
                     result[prop] = [];
             } else {
                 var isEmpty = true;
                 for (var p in cur) {
                     isEmpty = false;
-                    recurse(cur[p], prop ? prop+"."+p : p);
+                    recurse(cur[p], prop ? prop + "." + p : p);
                 }
                 if (isEmpty)
                     result[prop] = {};
@@ -131,11 +143,11 @@
         recurse(data, "");
         return result;
     };
-///////////////////////////////////////////////////
-// CONSTRUCTOR
-///////////////////////////////////////////////////
+    ///////////////////////////////////////////////////
+    // CONSTRUCTOR
+    ///////////////////////////////////////////////////
 
-	var options = {
+    var options = {
 
     };
 
@@ -144,10 +156,10 @@
      *
      * @param  {object} config Configuration object.
      */
-    var Go2o = function(config){
+    var Go2o = function(config) {
         //TODO: We want to only merge in valid attributes!!
         //not the whole config object!
-        config  = config || {};
+        config = config || {};
         config = _extend({}, this.constructor.DEFAULTS, config);
 
         this.init(config);
@@ -159,56 +171,61 @@
      */
     Go2o.DEFAULTS = options;
 
-///////////////////////////////////////////////////
-// PRIVATE METHODS
-///////////////////////////////////////////////////
+    ///////////////////////////////////////////////////
+    // PRIVATE METHODS
+    ///////////////////////////////////////////////////
 
-    Go2o.prototype.init = function(config){
-        if(this.initialized) return this.logger.warn('Already initialized');
+    Go2o.prototype.init = function(config) {
+        if (this.initialized) return this.logger.warn('Already initialized');
         this.initialized = true;
 
         console.log('Go2o: Init!', config);
 
         _extend(this, config);
-        //If we do not have schema, then WTF?
-        this.schema || (this.schema = {});
 
-        this.flattened = {};
 
-        this.matchers = {};
-        this.transformers = {};
-        this.processors = {};
+        var attributes = ['schema', 'transforms', 'flattened', 'matchers',
+            'transformers', 'processors', 'preprocessors', 'postprocessors',
+            'handledKeys'
+        ];
 
-        this.preprocessors || (this.preprocessors = {});
-        this.postprocessors || (this.postprocessors = {});
-
-        this.handledKeys = {};
+        attributes.forEach(function(prop) {
+            this.hasOwnProperty(prop) || (this[prop] = {});
+        }, this);
 
         this.typeMap = {
-            'String' : 'transformers',
-            'RegExp' : 'matchers',
+            'String': 'transformers',
+            'RegExp': 'matchers',
             'Function': 'processors'
         };
 
-        this.addTransformer('rename', function(path, name){
-            console.info(path)
-            if(!this.flattened.hasOwnProperty(path)) return false;
+        /*****************************************
+         * ADDING SAMPLE TRANSFORMATIONS. MOVE OUT
+         *****************************************/
+        this.addTransformer('rename', function(path, name) {
+            if (!this.flattened.hasOwnProperty(path)) return false;
             console.log('=> rename %s to %s', path, name);
             this.output[name] = this.flattened[path];
             delete this.flattened[path];
             return true;
         });
 
-        this.addTransformer('collapse', function(path, name){
-            if(!this.flattened.hasOwnProperty(path)) return false;
+        this.addTransformer('collapse', function(path, name) {
+            if (!this.flattened.hasOwnProperty(path)) return false;
             console.log('=> collapse %s to %s', path, name);
-            if(! this.output.hasOwnProperty(name)) this.output[name] = [];
+            if (!this.output.hasOwnProperty(name)) this.output[name] = [];
             this.output[name].push(this.flattened[path]);
             return true;
         });
 
-        this.addTransformer('remove', function(path){
-            if(!this.flattened.hasOwnProperty(path)) return false;
+        this.addTransformer('remove', function(path, doGlob) {
+            console.warn('remove', path);
+            if (doGlob === true) {
+                Object.keys(this.flattened).forEach(function(key) {
+                    if (key.match(new RegExp(path))) console.warn('glob it')
+                    else console.info('fuck it')
+                }, this);
+            } else if (!this.flattened.hasOwnProperty(path)) return false;
             console.log('=> collapse %s to %s', path, name);
             delete this.flattened[path];
             return true;
@@ -219,24 +236,25 @@
 
         });*/
 
-        this.addPreprocessor('flattenPaths', function(){console.warn('flattenPaths')
+        this.addPreprocessor('flattenPaths', function() {
+            console.warn('flattenPaths')
             this.flattened = Parser.flatten(this.source);
         });
 
-        this.addPostprocessor('mergeOrphans', function(){
+        this.addPostprocessor('mergeOrphans', function() {
             var orphans = _diff(this.flattened, this.handledKeys);
-            orphans.forEach(function(key){
+            orphans.forEach(function(key) {
                 this.output[key] = this.flattened[key];
             }, this);
         });
 
-        this.addPostprocessor('unflattenPaths', function(){
+        this.addPostprocessor('unflattenPaths', function() {
             this.output = Parser.unflatten(this.output);
         });
     };
 
-    Go2o.prototype.run = function(data){
-        console.log('parsing',data);
+    Go2o.prototype.run = function(data) {
+        console.log('parsing', data);
         this.source = _extend({}, data);
 
         this.runPre();
@@ -247,9 +265,7 @@
         this.output = {};
 
         //Iterate over the source properties in schema:
-        Object.keys(this.schema).forEach(function(path){
-            this.applyTransformTo(path);
-        }, this);
+        Object.keys(this.transforms).forEach(this.applyTransformTo.bind(this));
 
         //after we run all trasforms, we should pic all properties of
         //original object and append those to the output.
@@ -258,18 +274,18 @@
         return this.output;
     };
 
-    Go2o.prototype.applyTransformTo = function(path){
-        var rules = this.schema[path],
-            arg   = null,
+    Go2o.prototype.applyTransformTo = function(path) {
+        var rules = this.transforms[path],
+            arg = null,
             handled = false;
 
         //for now we assume that all schema values are objs.
-        Object.keys(rules).forEach(function(event){
+        Object.keys(rules).forEach(function(event) {
             arg = rules[event];
 
-            if(this.transformers.hasOwnProperty(event)){
+            if (this.transformers.hasOwnProperty(event)) {
                 handled = this.transformers[event].call(this, path, arg);
-                if(handled === true) this.handledKeys[path] = true;
+                if (handled === true) this.handledKeys[path] = true;
             }
 
             //TODO: We can inline this in run, collect all matchers.
@@ -284,7 +300,6 @@
 
                 if(handled === true) this.handledKeys[path] = true;
             }, this);*/
-
         }, this);
     };
 
@@ -307,7 +322,7 @@
      *                             transformation.
      * @param {this}
      */
-    Go2o.prototype.addTransformer = function(event, transformer){
+    Go2o.prototype.addTransformer = function(event, transformer) {
         var eventType = event.constructor.name; // this, fails in <IE9, shim
         var holder = this.typeMap[eventType];
         this[holder][event] = transformer;
@@ -317,19 +332,19 @@
         return this;
     };
 
-    Go2o.prototype.addPostprocessor = function(id, post){
+    Go2o.prototype.addPostprocessor = function(id, post) {
         this.postprocessors[id] = post;
         return this;
     };
 
-    Go2o.prototype.addPreprocessor = function(id, post){
+    Go2o.prototype.addPreprocessor = function(id, post) {
         this.preprocessors[id] = post;
         return this;
     };
 
-    Go2o.prototype.runPost = function(){
+    Go2o.prototype.runPost = function() {
         var processId;
-        Object.keys(this.post).forEach(function(id){
+        Object.keys(this.post).forEach(function(id) {
             processId = this.post[id];
             this.postprocessors[processId].call(this);
         }, this);
@@ -337,9 +352,9 @@
         return this;
     };
 
-    Go2o.prototype.runPre = function(){
+    Go2o.prototype.runPre = function() {
         var processId;
-        Object.keys(this.pre).forEach(function(id){
+        Object.keys(this.pre).forEach(function(id) {
             processId = this.pre[id];
             this.preprocessors[processId].call(this);
         }, this);
