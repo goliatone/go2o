@@ -1,10 +1,10 @@
 'use strict';
 var lrSnippet = require('grunt-contrib-livereload/lib/utils').livereloadSnippet;
-var mountFolder = function (connect, dir) {
+var mountFolder = function(connect, dir) {
     return connect.static(require('path').resolve(dir));
 };
 
-module.exports = function (grunt) {
+module.exports = function(grunt) {
     // load all grunt tasks
     require('matchdep').filterDev('grunt-*').forEach(grunt.loadNpmTasks);
 
@@ -14,7 +14,7 @@ module.exports = function (grunt) {
         src: 'src',
         lib: 'lib',
         dist: 'dist',
-        example:'examples'
+        example: 'examples'
     };
 
     try {
@@ -23,8 +23,8 @@ module.exports = function (grunt) {
 
     grunt.initConfig({
         config: config,
-        livereload:{
-            port: 35723
+        livereload: {
+            port: 35323
         },
         watch: {
             livereload: {
@@ -39,13 +39,13 @@ module.exports = function (grunt) {
         },
         connect: {
             options: {
-                port: 9000,
+                port: 9333,
                 // Change this to '0.0.0.0' to access the server from outside.
                 hostname: 'localhost'
             },
             livereload: {
                 options: {
-                    middleware: function (connect) {
+                    middleware: function(connect) {
                         return [
                             lrSnippet,
                             mountFolder(connect, '.tmp'),
@@ -58,7 +58,7 @@ module.exports = function (grunt) {
             },
             test: {
                 options: {
-                    middleware: function (connect) {
+                    middleware: function(connect) {
                         return [
                             mountFolder(connect, '.tmp'),
                             mountFolder(connect, 'test')
@@ -66,7 +66,7 @@ module.exports = function (grunt) {
                     }
                 }
             },
-            dev:{
+            dev: {
                 options: {}
             }
         },
