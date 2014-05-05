@@ -152,15 +152,11 @@ define(['go2o', 'jquery'], function (Go2o, $) {
                 }
             },
             schema:{
-                'name':{
-                    rename:'nombre'
+                'payload.bill.billPurpose':{
+                    rename:'payload.bill.description'
                 },
-                'age':{
-                    rename:'edad'
-                },
-                'city':{
-                    //the key is the trigger for the transform.
-                    rename:'ciudad',
+                'payload.bill.title':{
+                    rename:'payload.bill.name'
                 },
                 address1:{
                     collapse:'direccion'
@@ -168,8 +164,11 @@ define(['go2o', 'jquery'], function (Go2o, $) {
                 address2:{
                     collapse:'direccion'
                 },
-                'payload.bill.provisions.provisions':{
-                    rename: 'payload.bill.provisions'
+                'payload.committee.committeeType':{
+                    remove:true
+                },
+                'payload.committee.subCommittees':{
+                    remove: true
                 }
             }
         };
