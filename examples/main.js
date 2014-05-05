@@ -77,7 +77,28 @@ define(['go2o', 'jquery'], function(Go2o, $) {
                     "party": {
                         "_id": "534582f7e4b07375b113faa2",
                         "name": "Republican",
-                        "impacts": []
+                        "impacts": [{
+                            "impact": {
+                                "_id": "532afaeee4b0d782629bc5c3",
+                                "name": "Taxes",
+                                "direction": "UP"
+                            },
+                            "explanation": "Unfortunately, if you're building wind farms, you need to raise money to do it.  That probably means higher taxes..."
+                        }, {
+                            "impact": {
+                                "_id": "532b0ceee4b0d782629bc623",
+                                "name": "Jobs",
+                                "direction": "UP"
+                            },
+                            "explanation": "SOMEONE needs to build all those wind turbines.  More investement in wind farms means more energy industry jobs."
+                        }, {
+                            "impact": {
+                                "_id": "542b0ceee4b0d782649bc624",
+                                "name": "Pets",
+                                "direction": "DOWN"
+                            },
+                            "explanation": "HE needs to build all those wind turbines.  More investement in wind farms means more energy industry jobs."
+                        }]
                     },
                     "faction": {
                         "_id": "5339c22be4b01dbc9cf97bfe",
@@ -85,17 +106,26 @@ define(['go2o', 'jquery'], function(Go2o, $) {
                     },
                     "negativeExplanation": "Suck it",
                     "impacts": [{
-                        "_id": "5339c212e4b01dbc9cf97bf6",
-                        "name": "Impact 2 Updated",
-                        "direction": "UP"
+                        "impact": {
+                            "_id": "532afaeee4b0d782629bc5c3",
+                            "name": "Taxes",
+                            "direction": "UP"
+                        },
+                        "explanation": "Unfortunately, if you're building wind farms, you need to raise money to do it.  That probably means higher taxes..."
                     }, {
-                        "_id": "5339c218e4b01dbc9cf97bf8",
-                        "name": "Impact 3",
-                        "direction": "UP"
+                        "impact": {
+                            "_id": "532b0ceee4b0d782629bc623",
+                            "name": "Jobs",
+                            "direction": "UP"
+                        },
+                        "explanation": "SOMEONE needs to build all those wind turbines.  More investement in wind farms means more energy industry jobs."
                     }, {
-                        "_id": "5339c21de4b01dbc9cf97bfa",
-                        "name": "Impact 4 Updated",
-                        "direction": "UP"
+                        "impact": {
+                            "_id": "542b0ceee4b0d782649bc624",
+                            "name": "Pets",
+                            "direction": "DOWN"
+                        },
+                        "explanation": "HE needs to build all those wind turbines.  More investement in wind farms means more energy industry jobs."
                     }]
                 }, {
                     "_id": "53453333e4b07375b113fab3",
@@ -103,7 +133,28 @@ define(['go2o', 'jquery'], function(Go2o, $) {
                     "party": {
                         "_id": "534582f7e4b07375b113fbbb",
                         "name": "Republican",
-                        "impacts": []
+                        "impacts": [{
+                            "impact": {
+                                "_id": "532afaeee4b0d782629bc5c3",
+                                "name": "Taxes",
+                                "direction": "UP"
+                            },
+                            "explanation": "Unfortunately, if you're building wind farms, you need to raise money to do it.  That probably means higher taxes..."
+                        }, {
+                            "impact": {
+                                "_id": "532b0ceee4b0d782629bc623",
+                                "name": "Jobs",
+                                "direction": "UP"
+                            },
+                            "explanation": "SOMEONE needs to build all those wind turbines.  More investement in wind farms means more energy industry jobs."
+                        }, {
+                            "impact": {
+                                "_id": "542b0ceee4b0d782649bc624",
+                                "name": "Pets",
+                                "direction": "DOWN"
+                            },
+                            "explanation": "HE needs to build all those wind turbines.  More investement in wind farms means more energy industry jobs."
+                        }]
                     },
                     "faction": {
                         "_id": "5339c22be4b01dbc9cf97fff",
@@ -111,17 +162,26 @@ define(['go2o', 'jquery'], function(Go2o, $) {
                     },
                     "negativeExplanation": "Fuck it",
                     "impacts": [{
-                        "_id": "5339c212e4b01dbc9cf97bf3",
-                        "name": "Impact 5 Updated",
-                        "direction": "UP"
+                        "impact": {
+                            "_id": "532afaeee4b0d782629bc5c3",
+                            "name": "Taxes",
+                            "direction": "UP"
+                        },
+                        "explanation": "Unfortunately, if you're building wind farms, you need to raise money to do it.  That probably means higher taxes..."
                     }, {
-                        "_id": "5339c218e4b01dbc9cf97bf1",
-                        "name": "Impact 6",
-                        "direction": "UP"
+                        "impact": {
+                            "_id": "532b0ceee4b0d782629bc623",
+                            "name": "Jobs",
+                            "direction": "UP"
+                        },
+                        "explanation": "SOMEONE needs to build all those wind turbines.  More investement in wind farms means more energy industry jobs."
                     }, {
-                        "_id": "5339c21de4b01dbc9cf97bfb",
-                        "name": "Impact 7 Updated",
-                        "direction": "UP"
+                        "impact": {
+                            "_id": "542b0ceee4b0d782649bc624",
+                            "name": "Pets",
+                            "direction": "DOWN"
+                        },
+                        "explanation": "HE needs to build all those wind turbines.  More investement in wind farms means more energy industry jobs."
                     }]
                 }]
             }
@@ -156,6 +216,7 @@ define(['go2o', 'jquery'], function(Go2o, $) {
                 },
                 unwrapProvisions: function() {
                     Object.keys(this.flattened).forEach(function(path) {
+                        console.info('UNWRAP', path)
                         if (!path.match(/payload.bill.provisions.provisions/)) return;
                         var out = path.replace(/payload.bill.provisions.provisions/, 'payload.bill.provisions'),
                             value = this.flattened[path];
@@ -181,14 +242,33 @@ define(['go2o', 'jquery'], function(Go2o, $) {
                     remove: false
                 },
                 'payload.committee.subCommittees': {
-                    remove: false
-                },
-                'payload\.committee\.amendments\.\d+\.party': {
                     remove: {
                         glob: true,
-                        pattern: /payload\.committee\.amendments\.\d+\.party/
+                        matcher: /payload\.committee\.subCommittees/
+                    }
+                },
+                'payload.committee.amendments.#.party': {
+                    remove: {
+                        glob: true,
+                        matcher: /payload\.committee\.amendments\.\d+\.party/
+                    }
+                },
+                'payload.committee.amendments.#.impacts.#.explanation': {
+                    remove: {
+                        glob: true,
+                        matcher: /payload\.committee\.amendments\.(\d+)\.impacts\.(\d+)\.explanation/
+                    }
+                },
+                'payload.committee.amendments.#.impacts.#.impact': {
+                    rename: {
+                        glob: true,
+                        matcher: /payload\.committee\.amendments\.(\d+)\.impacts\.(\d+)\.impact/,
+                        name: function(key, path, options) {
+                            return key.replace('.impact.', '.');
+                        }
                     }
                 }
+
             }
         };
         var go = new Go2o(schema),
