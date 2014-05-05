@@ -207,6 +207,13 @@
             return true;
         });
 
+        this.addTransformer('remove', function(path){
+            if(!this.flattened.hasOwnProperty(path)) return false;
+            console.log('=> collapse %s to %s', path, name);
+            delete this.flattened[path];
+            return true;
+        });
+
         /*this.addTransformer(/address[1-9]/, function(path, collapse){
             console.info('=> matching %s with %s', path, collapse);
 
