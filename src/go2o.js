@@ -143,6 +143,16 @@
         recurse(data, "");
         return result;
     };
+
+    Parser.glob = function(map, pattern) {
+        map || (map = {});
+        var out = {};
+        Object.keys(map).forEach(function(key) {
+            if (key.match(pattern)) out[key] = map[key];
+        });
+        return out;
+    };
+
     ///////////////////////////////////////////////////
     // CONSTRUCTOR
     ///////////////////////////////////////////////////
@@ -172,7 +182,7 @@
     Go2o.DEFAULTS = options;
 
     ///////////////////////////////////////////////////
-    // PRIVATE METHODS
+    // PUBLIC METHODS
     ///////////////////////////////////////////////////
 
     Go2o.prototype.init = function(config) {
@@ -220,10 +230,11 @@
 
         this.addTransformer('remove', function(path, doGlob) {
             console.warn('remove', path);
-            if (doGlob === true) {
+            if (typeof doGlob === 'object' && doGlob.glob === true) {
                 Object.keys(this.flattened).forEach(function(key) {
-                    if (key.match(new RegExp(path))) console.warn('glob it')
-                    else console.info('fuck it')
+                    if (!key.match(doGlob.pattern)) return;
+                    console.warn('deleting', doGlob.pattern.constructor.name)
+                    delete this.flattened[key];
                 }, this);
             } else if (!this.flattened.hasOwnProperty(path)) return false;
             console.log('=> collapse %s to %s', path, name);
@@ -367,6 +378,14 @@
      * or a shim if not present.
      */
     Go2o.prototype.logger = console || _shimConsole();
+
+    /*****************************
+     * EXPOSE HELPERS, FOR TESTING.
+     ******************************/
+    Go2o.helpers = {};
+    Go2o.helpers.diff = _diff;
+    Go2o.helpers.extend = _extend;
+    Go2o.helpers.Parser = Parser;
 
     return Go2o;
 }));
