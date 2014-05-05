@@ -212,32 +212,46 @@
         /*****************************************
          * ADDING SAMPLE TRANSFORMATIONS. MOVE OUT
          *****************************************/
-        this.addTransformer('rename', function(path, name) {
-            if (!this.flattened.hasOwnProperty(path)) return false;
-            console.log('=> rename %s to %s', path, name);
-            this.output[name] = this.flattened[path];
+        this.addTransformer('rename', function(path, options) {
+            if (typeof options === 'object' && options.glob === true) {
+
+                Object.keys(this.flattened).forEach(function(key) {
+                    if (!key.match(options.matcher)) return;
+                    var name = key;
+                    if (typeof options.name === 'function') {
+                        name = options.name(key, path, options);
+                    }
+
+                    this.output[name] = this.flattened[key];
+                    delete this.flattened[key];
+                }, this);
+
+                return true;
+            } else if (!this.flattened.hasOwnProperty(path)) return false;
+
+            // if (!this.flattened.hasOwnProperty(path)) return false;
+            console.log('=> rename %s to %s', path, options);
+            this.output[options] = this.flattened[path];
             delete this.flattened[path];
             return true;
         });
 
         this.addTransformer('collapse', function(path, name) {
             if (!this.flattened.hasOwnProperty(path)) return false;
-            console.log('=> collapse %s to %s', path, name);
+            // console.log('=> collapse %s to %s', path, name);
             if (!this.output.hasOwnProperty(name)) this.output[name] = [];
             this.output[name].push(this.flattened[path]);
             return true;
         });
 
-        this.addTransformer('remove', function(path, doGlob) {
-            console.warn('remove', path);
-            if (typeof doGlob === 'object' && doGlob.glob === true) {
+        this.addTransformer('remove', function(path, options) {
+            if (typeof options === 'object' && options.glob === true) {
                 Object.keys(this.flattened).forEach(function(key) {
-                    if (!key.match(doGlob.pattern)) return;
-                    console.warn('deleting', doGlob.pattern.constructor.name)
+                    if (!key.match(options.matcher)) return;
                     delete this.flattened[key];
                 }, this);
             } else if (!this.flattened.hasOwnProperty(path)) return false;
-            console.log('=> collapse %s to %s', path, name);
+
             delete this.flattened[path];
             return true;
         });
