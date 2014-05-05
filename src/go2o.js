@@ -191,12 +191,16 @@
         };
 
         this.addTransformer('rename', function(path, name){
+            console.info(path)
+            if(!this.flattened.hasOwnProperty(path)) return false;
             console.log('=> rename %s to %s', path, name);
             this.output[name] = this.flattened[path];
+            delete this.flattened[path];
             return true;
         });
 
         this.addTransformer('collapse', function(path, name){
+            if(!this.flattened.hasOwnProperty(path)) return false;
             console.log('=> collapse %s to %s', path, name);
             if(! this.output.hasOwnProperty(name)) this.output[name] = [];
             this.output[name].push(this.flattened[path]);
@@ -277,6 +281,25 @@
         }, this);
     };
 
+    /**
+     * Transformation method attached to `event`
+     * key.
+     * TODO: Transformer should be an object:
+     * ```
+     *     var transformer = {
+     *         id: 'rename',
+     *         check: function(path, name){
+     *             return this.flattened.hasOwnProperty(path);
+     *         },
+     *         execute: function(path, name){
+     *             this.output[name] = this.flattened[path];
+     *         }
+     *     };
+     * ```
+     * @param {String} event       Name to trigger
+     *                             transformation.
+     * @param {this}
+     */
     Go2o.prototype.addTransformer = function(event, transformer){
         var eventType = event.constructor.name; // this, fails in <IE9, shim
         var holder = this.typeMap[eventType];
@@ -284,14 +307,17 @@
 
         //WE REALLY WANT TO DO THIS WITH EVENTS!!
         // this.on(transformer.key, transformer.execute);
+        return this;
     };
 
     Go2o.prototype.addPostprocessor = function(id, post){
         this.postprocessors[id] = post;
+        return this;
     };
 
     Go2o.prototype.addPreprocessor = function(id, post){
         this.preprocessors[id] = post;
+        return this;
     };
 
     Go2o.prototype.runPost = function(){
@@ -300,6 +326,8 @@
             processId = this.post[id];
             this.postprocessors[processId].call(this);
         }, this);
+
+        return this;
     };
 
     Go2o.prototype.runPre = function(){
@@ -308,6 +336,7 @@
             processId = this.pre[id];
             this.preprocessors[processId].call(this);
         }, this);
+        return this;
     };
 
     /**
