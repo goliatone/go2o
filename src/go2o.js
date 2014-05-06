@@ -106,35 +106,50 @@
 
     var Parser = {};
 
-    Parser.flatten = function(data) {
-        var result = {};
+    /**
+     * Flatten a deeply nested object into a map of a
+     * single level where the keys match to original
+     * string path of the property.
+     *
+     * @param  {Object} src    Object to be serialized
+     * @return {Object}        Serialized object.
+     */
+    Parser.flatten = function flatten(src, /*private*/ prop, output) {
+        prop || (prop = '');
+        output || (output = {});
 
-        function recurse(cur, prop) {
-            if (Object(cur) !== cur) {
-                result[prop] = cur;
-            } else if (Array.isArray(cur)) {
-                for (var i = 0, l = cur.length; i < l; i++)
-                    recurse(cur[i], prop ? prop + '.' + i : '' + i);
-                if (l === 0) result[prop] = [];
-            } else {
-                var isEmpty = true;
-                for (var p in cur) {
-                    isEmpty = false;
-                    recurse(cur[p], prop ? prop + '.' + p : p);
-                }
-                if (isEmpty) result[prop] = {};
+        if (Object(src) !== src) output[prop] = src;
+        else if (Array.isArray(src)) {
+            for (var i = 0, l = src.length; i < l; i++) {
+                flatten(src[i], prop ? prop + '.' + i : '' + i, output);
             }
+            if (l === 0) output[prop] = [];
+        } else {
+            var isEmpty = true;
+            for (var p in src) {
+                isEmpty = false;
+                flatten(src[p], prop ? prop + '.' + p : p, output);
+            }
+            if (isEmpty) output[prop] = {};
         }
-        recurse(data, '');
-        return result;
+
+        return output;
     };
 
-    Parser.unflatten = function(data) {
-        if (Object(data) !== data || Array.isArray(data))
-            return data;
+    /**
+     * Unflatten a map of string path keys
+     * and values to a fully nested object.
+     *
+     * @param  {Object} src Map to be unmapped
+     * @return {Object}
+     */
+    Parser.unflatten = function(src) {
+        if (Object(src) !== src || Array.isArray(src)) return src;
+
         var result = {}, cur, prop, idx, last, temp;
-        for (var p in data) {
-            cur = result, prop = '', last = 0;
+        for (var p in src) {
+            cur = result, prop = '__ROOT__', last = 0;
+
             do {
                 idx = p.indexOf('.', last);
                 temp = p.substring(last, idx !== -1 ? idx : undefined);
@@ -142,9 +157,10 @@
                 prop = temp;
                 last = idx + 1;
             } while (idx >= 0);
-            cur[prop] = data[p];
+
+            cur[prop] = src[p];
         }
-        return result[''];
+        return result['__ROOT__'];
     };
 
     /**
@@ -178,7 +194,7 @@
 
     /**
      * Go2o constructor
-     * 
+     *
      * @param  {object} config Configuration object.
      */
     var Go2o = function(config) {
@@ -215,7 +231,7 @@
         /*****************************************
          * ADDING SAMPLE TRANSFORMATIONS. MOVE OUT
          *****************************************/
-        this.addTransformer('rename', function(path, options) {
+        this.addTransformer('rename', function rename(path, options) {
             if (typeof options === 'object' && options.glob === true) {
                 Object.keys(this.flattened).forEach(function(key) {
                     if (!key.match(options.matcher)) return;
@@ -238,7 +254,7 @@
             return true;
         });
 
-        this.addTransformer('collapse', function(path, name) {
+        this.addTransformer('collapse', function collapse(path, name) {
             if (!this.flattened.hasOwnProperty(path)) return false;
             // console.log('=> collapse %s to %s', path, name);
             if (!this.output.hasOwnProperty(name)) this.output[name] = [];
@@ -246,7 +262,7 @@
             return true;
         });
 
-        this.addTransformer('remove', function(path, options) {
+        this.addTransformer('remove', function remove(path, options) {
             if (typeof options === 'object' && options.glob === true) {
                 Object.keys(this.flattened).forEach(function(key) {
                     if (!key.match(options.matcher)) return;
@@ -263,19 +279,24 @@
 
         });*/
 
-        this.addPreprocessor('flattenPaths', function() {
+        this.addPreprocessor('flattenPaths', function flattenPaths() {
             console.warn('flattenPaths');
             this.flattened = Parser.flatten(this.source);
         });
 
-        this.addPostprocessor('mergeOrphans', function() {
-            var orphans = _diff(this.flattened, this.handledKeys);
+        this.addPostprocessor('mergeOrphans', function mergeOrphans() {
+            /*
+             * Collect all keys in the original map that were
+             * not handled.
+             */
+            var orphans = _diff(this.flattened, this.handledKeys),
+                fname = arguments.callee.name;
             orphans.forEach(function(key) {
-                if(this.output.hasOwnProperty(key)){ 
+                if (this.output.hasOwnProperty(key)) {
                     //TODO: Figure out conflict policy!!
                     //right now, we just override with original
                     //content outside of transformations.
-                    this.logger.warn('OVERRIDING');
+                    this.logger.warn('OVERRIDING', fname);
                 }
 
                 this.output[key] = this.flattened[key];
@@ -287,16 +308,20 @@
         });
     };
 
+    Go2o.prototype.conflict = function() {
+
+    };
+
     Go2o.prototype.run = function(data) {
         console.log('parsing', data);
+
         this.source = _extend({}, data);
 
-        this.runPre();
-
-        //For now we assume we want an Object as output
-        //but we might want to go from Array to Object or from
-        //Object to Array. That would be a transform in the 'root'
+        //this is a reset
         this.output = {};
+        this.handledKeys = {};
+
+        this.runPre();
 
         //Iterate over the source properties in schema:
         Object.keys(this.transforms).forEach(this.applyTransformTo, this);
@@ -354,8 +379,8 @@
         return this;
     };
 
-    Go2o.prototype.addPreprocessor = function(id, post) {
-        this.preprocessors[id] = post;
+    Go2o.prototype.addPreprocessor = function(id, pre) {
+        this.preprocessors[id] = pre;
         return this;
     };
 
