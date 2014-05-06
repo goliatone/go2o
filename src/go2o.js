@@ -44,6 +44,8 @@
      *                         meging target to params.
      */
     var _extend = function extend(target) {
+        if (!target) return {};
+
         var sources = [].slice.call(arguments, 1);
         sources.forEach(function(source) {
             for (var property in source) {
@@ -54,6 +56,7 @@
                 } else target[property] = source[property];
             }
         });
+
         return target;
     };
 
@@ -87,6 +90,8 @@
      * @return {Array}      Array with keys
      */
     var _diff = function(src, tgt) {
+        if (!src) return Object.keys(tgt);
+        if (!tgt) return [];
         var keys = Object.keys(tgt);
         return Object.keys(src).filter(function(i) {
             return keys.indexOf(i) < 0;
