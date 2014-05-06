@@ -59,10 +59,10 @@ _(Coming soon)_
 _(Nothing yet)_
 
 ## TODO:
-- Build in default pre/post processes:
-    - pre: flattenPaths
-    - post mergeOrphans, unflattenPaths
-- Implement conflict resolution. If we collapse one object into its parent and they have conflicting properties, who do we handle that? Per case + default.
+- ~~Build in default pre/post processes:~~
+    - ~~pre: flattenPaths~~
+    - ~~post mergeOrphans, unflattenPaths~~
+- ~~Implement conflict resolution. If we collapse one object into its parent and they have conflicting properties, who do we handle that?~~ NOTE: Per case is not defined.
 - Each transformer should have it's own scope.
 - Merge validation. Have a handler for config key `transforms` and one for `validations`.
 
