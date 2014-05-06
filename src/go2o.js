@@ -143,7 +143,7 @@
             if (isEmpty) output[prop] = {};
         }
 
-        return output;
+        return (isEmpty === true) ? {} : output;
     };
 
     /**
@@ -170,7 +170,8 @@
 
             cur[prop] = src[p];
         }
-        return result['__ROOT__'];
+
+        return result['__ROOT__'] || {};
     };
 
     /**
@@ -438,9 +439,9 @@
      * @param {this}
      */
     Go2o.prototype.addTransformer = function(event, transformer) {
-        this.transformers[event] = transformer;
         //WE REALLY WANT TO DO THIS WITH EVENTS!!
         // this.on(transformer.key, transformer.execute);
+        this.transformers[event] = transformer;
         return this;
     };
 
@@ -468,6 +469,10 @@
         var processId;
         Object.keys(this.pre).forEach(function(id) {
             processId = this.pre[id];
+
+            if (!this.preprocessors.hasOwnProperty(processId) ||
+                typeof this.preprocessors[processId] !== 'function') return;
+
             this.preprocessors[processId].call(this);
         }, this);
         return this;
