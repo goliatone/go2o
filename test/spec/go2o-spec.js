@@ -229,7 +229,13 @@ define(function(require) {
             var glob = Go2o.helpers.Parser.glob;
 
             expect(glob(source, pattern)).toMatchObject(expected);
+        });
+    });
 
+    describe('Go2o', function() {
+        it('should have an initialization method', function() {
+            var go = new Go2o();
+            expect(go.initialized).toBeTruthy();
         });
     });
 
