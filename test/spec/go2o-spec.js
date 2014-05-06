@@ -264,6 +264,14 @@ define(function(require) {
             expect(go.pre.indexOf('iShouldBeLast')).toBe(go.pre.length - 1);
         });
 
+        it('non registered preprocessors should not break process', function() {
+            var pre = ['A', 'B', 'C', 'iShouldBeLast'];
+            var go = new Go2o({
+                pre: pre
+            });
+            expect(go.run()).toMatchObject({});
+        });
+
         it('should keep default postprocessors at the end', function() {
             var post = ['iShouldBeFirst', 'A', 'B', 'C'];
             var go = new Go2o({
