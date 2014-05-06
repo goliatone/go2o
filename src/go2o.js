@@ -149,6 +149,15 @@
         return result;
     };
 
+    /**
+     * Captures all object keys that match
+     * a regexp pattern
+     * @param  {Object} map     Source object
+     * @param  {RegExp} pattern Matcher
+     * @return {Object}         Object with the
+     *                          subset of properties
+     *                          matching `pattern`
+     */
     Parser.glob = function(map, pattern) {
         map || (map = {});
         var out = {};
