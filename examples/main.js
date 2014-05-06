@@ -263,7 +263,7 @@ define(['go2o', 'jquery'], function(Go2o, $) {
                     rename: {
                         glob: true,
                         matcher: /payload\.committee\.amendments\.(\d+)\.impacts\.(\d+)\.impact/,
-                        name: function(key, path, options) {
+                        execute: function(key, path, options) {
                             return key.replace('.impact.', '.');
                         }
                     }
