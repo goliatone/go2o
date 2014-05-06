@@ -178,7 +178,7 @@
 
     /**
      * Go2o constructor
-     *
+     * 
      * @param  {object} config Configuration object.
      */
     var Go2o = function(config) {
@@ -217,7 +217,6 @@
          *****************************************/
         this.addTransformer('rename', function(path, options) {
             if (typeof options === 'object' && options.glob === true) {
-
                 Object.keys(this.flattened).forEach(function(key) {
                     if (!key.match(options.matcher)) return;
                     var name = key;
@@ -272,6 +271,13 @@
         this.addPostprocessor('mergeOrphans', function() {
             var orphans = _diff(this.flattened, this.handledKeys);
             orphans.forEach(function(key) {
+                if(this.output.hasOwnProperty(key)){ 
+                    //TODO: Figure out conflict policy!!
+                    //right now, we just override with original
+                    //content outside of transformations.
+                    this.logger.warn('OVERRIDING');
+                }
+
                 this.output[key] = this.flattened[key];
             }, this);
         });
