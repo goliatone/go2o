@@ -145,6 +145,92 @@ define(function(require) {
             expect(Go2o.helpers.Parser.glob).toBeTruthy();
             expect(Go2o.helpers.Parser.glob).toBeOfType('function');
         });
+
+        it('flatten medthod should take an object and return a map with string paths to values', function() {
+            var source = [{
+                "impact": {
+                    "id": "1",
+                    "name": "Taxes",
+                    "direction": "UP"
+                },
+                "explanation": "Lorem ipsum"
+            }, {
+                "impact": {
+                    "id": "2",
+                    "name": "Jobs",
+                    "direction": "UP"
+                },
+                "explanation": "Lorem ipsum"
+            }];
+
+            var expected = {
+                "0.impact.id": "1",
+                "0.impact.name": "Taxes",
+                "0.impact.direction": "UP",
+                "0.explanation": "Lorem ipsum",
+                "1.impact.id": "2",
+                "1.impact.name": "Jobs",
+                "1.impact.direction": "UP",
+                "1.explanation": "Lorem ipsum"
+            };
+            var Parser = Go2o.helpers.Parser;
+
+            expect(Parser.flatten(source)).toMatchObject(expected);
+        });
+
+        it('unflatten medthod should take a map with string paths and return an object', function() {
+            var expected = [{
+                "impact": {
+                    "id": "1",
+                    "name": "Taxes",
+                    "direction": "UP"
+                },
+                "explanation": "Lorem ipsum"
+            }, {
+                "impact": {
+                    "id": "2",
+                    "name": "Jobs",
+                    "direction": "UP"
+                },
+                "explanation": "Lorem ipsum"
+            }];
+
+            var source = {
+                "0.impact.id": "1",
+                "0.impact.name": "Taxes",
+                "0.impact.direction": "UP",
+                "0.explanation": "Lorem ipsum",
+                "1.impact.id": "2",
+                "1.impact.name": "Jobs",
+                "1.impact.direction": "UP",
+                "1.explanation": "Lorem ipsum"
+            };
+            var Parser = Go2o.helpers.Parser;
+
+            expect(Parser.unflatten(source)).toMatchObject(expected);
+        });
+
+        it('glob should filter a map properties using a regexp', function() {
+            var source = {
+                "0.impact.id": "1",
+                "0.impact.name": "Taxes",
+                "0.impact.direction": "UP",
+                "0.explanation": "Lorem ipsum",
+                "1.impact.id": "2",
+                "1.impact.name": "Jobs",
+                "1.impact.direction": "UP",
+                "1.explanation": "Lorem ipsum"
+            };
+            var pattern = /\d+\.explanation/;
+            var expected = {
+                '0.explanation': 'Lorem ipsum',
+                '1.explanation': 'Lorem ipsum'
+            };
+            var glob = Go2o.helpers.Parser.glob;
+
+            expect(glob(source, pattern)).toMatchObject(expected);
+
+        });
     });
 
 });
