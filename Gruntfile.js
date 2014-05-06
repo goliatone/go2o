@@ -39,7 +39,7 @@ module.exports = function(grunt) {
         },
         connect: {
             options: {
-                port: 9333,
+                port: 9131,
                 // Change this to '0.0.0.0' to access the server from outside.
                 hostname: 'localhost'
             },
@@ -100,7 +100,7 @@ module.exports = function(grunt) {
         karma: {
             options: {
                 configFile: 'karma.conf.js',
-                runnerPort: 9999,
+                runnerPort: 88888,
                 browsers: ['Chrome', 'Firefox']
             },
             unit: {
