@@ -218,8 +218,8 @@
                 Object.keys(this.flattened).forEach(function(key) {
                     if (!key.match(options.matcher)) return;
                     var name = key;
-                    if (typeof options.name === 'function') {
-                        name = options.name(key, path, options);
+                    if (typeof options.execute === 'function') {
+                        name = options.execute(key, path, options);
                     }
 
                     this.output[name] = this.flattened[key];
