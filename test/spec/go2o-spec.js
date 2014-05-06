@@ -237,6 +237,107 @@ define(function(require) {
             var go = new Go2o();
             expect(go.initialized).toBeTruthy();
         });
-    });
 
+        it('should apply transforms', function(){
+            var schema = {
+                pre: ['flattenPaths'],
+                post: ['mergeOrphans', 'unflattenPaths'],
+                transforms: {
+                    'amendments.#.impacts.#.impact': {
+                        rename: {
+                            glob: true,
+                            matcher: /amendments\.(\d+)\.impacts\.(\d+)\.impact/,
+                            execute: function(key, path, options) {
+                                return key.replace('.impact.', '.');
+                            }
+                        }
+                    }
+                }
+            };
+            var source = {
+                amendments:[
+                    {
+                        id:1,
+                        impacts:[
+                            {
+                                id:1,
+                                impact:{
+                                    id:11,
+                                    type:'impact'
+                                }
+                            },
+                            {
+                                id:2,
+                                impact:{
+                                    id:22,
+                                    type:'impact'
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        id:2,
+                        impacts:[
+                            {
+                                id:3,
+                                impact:{
+                                    id:33,
+                                    type:'impact'
+                                }
+                            },
+                            {
+                                id:4,
+                                impact:{
+                                    id:44,
+                                    type:'impact'
+                                }
+                            }
+                        ]
+                    }
+                ]
+            };
+
+            var target = {
+                amendments:[
+                    {
+                        id:1,
+                        impacts:[
+                            {
+
+                                id:1,
+                                //id:11,
+                                type:'impact'    
+                            },
+                            {
+                                id:2,
+                                //id:22,
+                                type:'impact'
+                            }
+                        ]
+                    },
+                    {
+                        id:2,
+                        impacts:[
+                            {
+                                id:3,
+                                //id:33,
+                                type:'impact'
+
+                            },
+                            {
+                                id:4,
+                                //id:44,
+                                type:'impact'
+
+                            }
+                        ]
+                    }
+                ]
+            };
+            var go = new Go2o(schema);
+            var output = go.run(source);
+            console.log(output)
+            expect(output).toMatchObject(target);
+        });
+    });
 });
