@@ -374,9 +374,14 @@
         } else {
             this.logger.warn('= now %s, ignore %s', this.output[key], this.flattened[key]);
         }
-
     };
 
+    /**
+     * Run processes and transformations.
+     * @param  {Object} data Object to which
+     *                       we want to modify.
+     * @return {Object}      Transformed object.
+     */
     Go2o.prototype.run = function(data) {
         console.log('parsing', data);
 
