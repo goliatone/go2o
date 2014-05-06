@@ -130,6 +130,18 @@ define(function(require) {
         });
     });
 
+    describe('isFunction helper', function() {
+        it('should return handle null arguments', function() {
+            var isFunction = Go2o.helpers.isFunction;
+            expect(isFunction(null, null)).toBeFalsy();
+        });
+
+        it('should check if is valid function', function() {
+            var isFunction = Go2o.helpers.isFunction;
+            expect(isFunction(Go2o.helpers, 'isFunction')).toBeTruthy();
+        });
+    });
+
     describe('Object helper should', function() {
         it('have a flatten method', function() {
             expect(Go2o.helpers.Parser.flatten).toBeTruthy();
