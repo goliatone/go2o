@@ -109,6 +109,10 @@
         });
     };
 
+    var _isFunction = function(src, key) {
+        return src && key && src[key] && typeof src[key] === 'function';
+    };
+
     ///////////////////////////////////////////////////
     /// HELPER JSON
     /// TODO: Implement as plugin?
@@ -412,10 +416,11 @@
         //for now we assume that all schema values are objs.
         Object.keys(rules).forEach(function(event) {
             arg = rules[event];
-            if (this.transformers.hasOwnProperty(event)) {
-                handled = this.transformers[event].call(this, path, arg);
-                if (handled === true) this.handledKeys[path] = true;
-            }
+
+            if (!_isFunction(this.transformers, event)) return;
+
+            handled = this.transformers[event].call(this, path, arg);
+            if (handled === true) this.handledKeys[path] = true;
         }, this);
     };
 
@@ -459,6 +464,7 @@
         var processId;
         Object.keys(this.post).forEach(function(id) {
             processId = this.post[id];
+            if (!_isFunction(this.postprocessors, processId)) return;
             this.postprocessors[processId].call(this);
         }, this);
 
@@ -470,8 +476,7 @@
         Object.keys(this.pre).forEach(function(id) {
             processId = this.pre[id];
 
-            if (!this.preprocessors.hasOwnProperty(processId) ||
-                typeof this.preprocessors[processId] !== 'function') return;
+            if (!_isFunction(this.preprocessors, processId)) return;
 
             this.preprocessors[processId].call(this);
         }, this);
@@ -491,6 +496,7 @@
     Go2o.helpers = {};
     Go2o.helpers.diff = _diff;
     Go2o.helpers.extend = _extend;
+    Go2o.helpers.isFunction = _isFunction;
     Go2o.helpers.Parser = Parser;
 
     return Go2o;
