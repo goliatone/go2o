@@ -98,14 +98,24 @@
         });
     };
 
+    /**
+     * Unique elements in array.
+     * @param  {Array} src Source array
+     * @return {Array}     Filtered array, no dups
+     */
+    var _unique = function(src) {
+        return src.filter(function(i, pos, self) {
+            return self.indexOf(i) === pos;
+        });
+    };
+
     ///////////////////////////////////////////////////
     /// HELPER JSON
     /// TODO: Implement as plugin?
     /// Go2o.use(Flattener);
     ///////////////////////////////////////////////////
-
+    //{
     var Parser = {};
-
     /**
      * Flatten a deeply nested object into a map of a
      * single level where the keys match to original
@@ -180,16 +190,36 @@
         });
         return out;
     };
-
+    //}
     ///////////////////////////////////////////////////
     // CONSTRUCTOR
     ///////////////////////////////////////////////////
 
     var OPTIONS = {
+        /*
+         * List of attributes that get initialized even
+         * if not specified on the config object.
+         */
         attributes: ['schema', 'transforms', 'flattened', 'matchers',
             'transformers', 'processors', 'preprocessors', 'postprocessors',
             'handledKeys'
-        ]
+        ],
+        /*
+         * Should we override output in case
+         * of conflict, ie: object merge.
+         */
+        overrideOnConflict: true,
+        /*
+         * This pre-process should always
+         * happen BEFORE than any other process
+         */
+        defaultPre: ['flattenPaths'],
+        /*
+         * This two processes should always happen,
+         * unflattenPaths should always be the last
+         * process to run.
+         */
+        defaultPost: ['mergeOrphans', 'unflattenPaths']
     };
 
     /**
@@ -222,12 +252,31 @@
 
         console.log('Go2o: Init!', config);
 
+
         _extend(this, config);
 
+        /*
+         * Create attributes.
+         */
         OPTIONS.attributes.forEach(function(prop) {
             this.hasOwnProperty(prop) || (this[prop] = {});
         }, this);
 
+        /*
+         * We need to ensure that we kick start
+         * pre/post collections.
+         */
+        this.pre || (this.pre = []);
+        this.pre = _unique(this.defaultPre.concat(this.pre));
+
+        this.post || (this.post = []);
+        this.post = _unique(this.post.concat(this.defaultPost));
+
+
+        this.registerDefaultTransformations();
+    };
+
+    Go2o.prototype.registerDefaultTransformations = function() {
         /*****************************************
          * ADDING SAMPLE TRANSFORMATIONS. MOVE OUT
          *****************************************/
@@ -247,10 +296,10 @@
                 return true;
             } else if (!this.flattened.hasOwnProperty(path)) return false;
 
-            // if (!this.flattened.hasOwnProperty(path)) return false;
             console.log('=> rename %s to %s', path, options);
             this.output[options] = this.flattened[path];
             delete this.flattened[path];
+
             return true;
         });
 
@@ -274,16 +323,19 @@
             return true;
         });
 
-        /*this.addTransformer(/address[1-9]/, function(path, collapse){
-            console.info('=> matching %s with %s', path, collapse);
-
-        });*/
-
+        /*
+         * Flatten source object into map. After this point we are
+         * ready to apply our transformations.
+         */
         this.addPreprocessor('flattenPaths', function flattenPaths() {
             console.warn('flattenPaths');
             this.flattened = Parser.flatten(this.source);
         });
 
+        /*
+         * Post processor that merges untransformed keys into the
+         * output object.
+         */
         this.addPostprocessor('mergeOrphans', function mergeOrphans() {
             /*
              * Collect all keys in the original map that were
@@ -291,24 +343,37 @@
              */
             var orphans = _diff(this.flattened, this.handledKeys),
                 fname = arguments.callee.name;
+
             orphans.forEach(function(key) {
                 if (this.output.hasOwnProperty(key)) {
-                    //TODO: Figure out conflict policy!!
-                    //right now, we just override with original
-                    //content outside of transformations.
-                    this.logger.warn('OVERRIDING', fname);
-                }
-
-                this.output[key] = this.flattened[key];
+                    this.solveConflict(key);
+                } else this.output[key] = this.flattened[key];
             }, this);
         });
 
+        /*
+         * We are done, rehydrate our object from the map.
+         */
         this.addPostprocessor('unflattenPaths', function() {
             this.output = Parser.unflatten(this.output);
         });
     };
 
-    Go2o.prototype.conflict = function() {
+    /**
+     * Simple method to solve conflict when
+     * merging elements.
+     * @param  {String} key Element ID
+     * @return {void}
+     */
+    Go2o.prototype.solveConflict = function(key) {
+        this.logger.warn('Conflict, solving for key', key);
+
+        if (this.overrideOnConflict === true) {
+            this.logger.warn('√ now %s, had value %s', this.flattened[key], this.output[key]);
+            this.output[key] = this.flattened[key];
+        } else {
+            this.logger.warn('= now %s, ignore %s', this.output[key], this.flattened[key]);
+        }
 
     };
 
@@ -323,8 +388,8 @@
 
         this.runPre();
 
-        //Iterate over the source properties in schema:
-        Object.keys(this.transforms).forEach(this.applyTransformTo, this);
+        //Iterate over the source properties in transforms:
+        Object.keys(this.transforms).map(this.applyTransformTo, this);
 
         //after we run all trasforms, we should pic all properties of
         //original object and append those to the output.
