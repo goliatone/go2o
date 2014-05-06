@@ -1,6 +1,6 @@
 {
   "name": "go2o",
-  "version": "0.0.1-1",
+  "version": "0.0.2-0",
   "description": "Simple Object to Object transformation library",
   "homepage": "https://github.com/goliatone/go2o",
 	"repository": {
