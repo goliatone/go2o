@@ -238,6 +238,41 @@ define(function(require) {
             expect(go.initialized).toBeTruthy();
         });
 
+        it('should be able to run with a null config', function() {
+            var go = new Go2o(null);
+            expect(go.run()).toMatchObject({});
+        });
+
+        it('should handle create default preprocessors', function() {
+            var go = new Go2o();
+            expect(go.pre).toBeArray();
+            expect(go.pre).toMatchObject(Go2o.DEFAULTS.defaultPre);
+        });
+
+        it('should handle create default postprocessors', function() {
+            var go = new Go2o();
+            expect(go.post).toBeArray();
+            expect(go.post).toMatchObject(Go2o.DEFAULTS.defaultPost);
+        });
+
+        it('should keep default preprocessors at the beginning', function() {
+            var pre = ['A', 'B', 'C', 'iShouldBeLast'];
+            var go = new Go2o({
+                pre: pre
+            });
+            expect(go.pre).toMatchObject(Go2o.DEFAULTS.defaultPre.concat(pre));
+            expect(go.pre.indexOf('iShouldBeLast')).toBe(go.pre.length - 1);
+        });
+
+        it('should keep default postprocessors at the end', function() {
+            var post = ['iShouldBeFirst', 'A', 'B', 'C'];
+            var go = new Go2o({
+                post: post
+            });
+            expect(go.post).toMatchObject(post.concat(Go2o.DEFAULTS.defaultPost));
+            expect(go.post.indexOf('iShouldBeFirst')).toBe(0);
+        });
+
         it('should apply transforms', function() {
             var schema = {
                 pre: ['flattenPaths'],
