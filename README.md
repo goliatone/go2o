@@ -50,9 +50,18 @@ In order to enable Travis for this specific project, you need to do so on your T
 
 ## Documentation
 _(Coming soon)_
+https://www.tbray.org/ongoing/When/201x/2014/05/05/Fat-JSON
 
 ## Examples
 _(Coming soon)_
 
 ## Release History
 _(Nothing yet)_
+
+## TODO:
+- Build in default pre/post processes:
+    - pre: flattenPaths
+    - post mergeOrphans, unflattenPaths
+- Implement conflict resolution. If we collapse one object into its parent and they have conflicting properties, who do we handle that? Per case + default.
+- Merge validation. Have a handler for config key `transforms` and one for `validations`.
+
