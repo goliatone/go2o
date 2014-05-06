@@ -238,7 +238,7 @@ define(function(require) {
             expect(go.initialized).toBeTruthy();
         });
 
-        it('should apply transforms', function(){
+        it('should apply transforms', function() {
             var schema = {
                 pre: ['flattenPaths'],
                 post: ['mergeOrphans', 'unflattenPaths'],
@@ -255,88 +255,149 @@ define(function(require) {
                 }
             };
             var source = {
-                amendments:[
-                    {
-                        id:1,
-                        impacts:[
-                            {
-                                id:1,
-                                impact:{
-                                    id:11,
-                                    type:'impact'
-                                }
-                            },
-                            {
-                                id:2,
-                                impact:{
-                                    id:22,
-                                    type:'impact'
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        id:2,
-                        impacts:[
-                            {
-                                id:3,
-                                impact:{
-                                    id:33,
-                                    type:'impact'
-                                }
-                            },
-                            {
-                                id:4,
-                                impact:{
-                                    id:44,
-                                    type:'impact'
-                                }
-                            }
-                        ]
-                    }
-                ]
+                amendments: [{
+                    id: 1,
+                    impacts: [{
+                        id: 1,
+                        impact: {
+                            id: 11,
+                            type: 'impact'
+                        }
+                    }, {
+                        id: 2,
+                        impact: {
+                            id: 22,
+                            type: 'impact'
+                        }
+                    }]
+                }, {
+                    id: 2,
+                    impacts: [{
+                        id: 3,
+                        impact: {
+                            id: 33,
+                            type: 'impact'
+                        }
+                    }, {
+                        id: 4,
+                        impact: {
+                            id: 44,
+                            type: 'impact'
+                        }
+                    }]
+                }]
             };
 
             var target = {
-                amendments:[
-                    {
-                        id:1,
-                        impacts:[
-                            {
+                amendments: [{
+                    id: 1,
+                    impacts: [{
 
-                                id:1,
-                                //id:11,
-                                type:'impact'    
-                            },
-                            {
-                                id:2,
-                                //id:22,
-                                type:'impact'
-                            }
-                        ]
-                    },
-                    {
-                        id:2,
-                        impacts:[
-                            {
-                                id:3,
-                                //id:33,
-                                type:'impact'
+                        id: 1,
+                        //id:11,
+                        type: 'impact'
+                    }, {
+                        id: 2,
+                        //id:22,
+                        type: 'impact'
+                    }]
+                }, {
+                    id: 2,
+                    impacts: [{
+                        id: 3,
+                        //id:33,
+                        type: 'impact'
 
-                            },
-                            {
-                                id:4,
-                                //id:44,
-                                type:'impact'
+                    }, {
+                        id: 4,
+                        //id:44,
+                        type: 'impact'
 
-                            }
-                        ]
-                    }
-                ]
+                    }]
+                }]
             };
             var go = new Go2o(schema);
             var output = go.run(source);
-            console.log(output)
+            expect(output).toMatchObject(target);
+        });
+
+        it('should handle source Array transformations', function() {
+            var schema = {
+                pre: ['flattenPaths'],
+                post: ['mergeOrphans', 'unflattenPaths'],
+                transforms: {
+                    '#.impacts.#.impact': {
+                        rename: {
+                            glob: true,
+                            matcher: /(\d+)\.impacts\.(\d+)\.impact/,
+                            execute: function(key, path, options) {
+                                return key.replace('.impact.', '.');
+                            }
+                        }
+                    }
+                }
+            };
+            var source =
+                [{
+                id: 1,
+                impacts: [{
+                    id: 1,
+                    impact: {
+                        id: 11,
+                        type: 'impact'
+                    }
+                }, {
+                    id: 2,
+                    impact: {
+                        id: 22,
+                        type: 'impact'
+                    }
+                }]
+            }, {
+                id: 2,
+                impacts: [{
+                    id: 3,
+                    impact: {
+                        id: 33,
+                        type: 'impact'
+                    }
+                }, {
+                    id: 4,
+                    impact: {
+                        id: 44,
+                        type: 'impact'
+                    }
+                }]
+            }];
+
+            var target = [{
+                id: 1,
+                impacts: [{
+
+                    id: 1,
+                    //id:11,
+                    type: 'impact'
+                }, {
+                    id: 2,
+                    //id:22,
+                    type: 'impact'
+                }]
+            }, {
+                id: 2,
+                impacts: [{
+                    id: 3,
+                    //id:33,
+                    type: 'impact'
+
+                }, {
+                    id: 4,
+                    //id:44,
+                    type: 'impact'
+
+                }]
+            }];
+            var go = new Go2o(schema);
+            var output = go.run(source);
             expect(output).toMatchObject(target);
         });
     });
