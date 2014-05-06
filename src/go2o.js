@@ -105,24 +105,6 @@
     ///////////////////////////////////////////////////
 
     var Parser = {};
-    Parser.unflatten = function(data) {
-        "use strict";
-        if (Object(data) !== data || Array.isArray(data))
-            return data;
-        var result = {}, cur, prop, idx, last, temp;
-        for (var p in data) {
-            cur = result, prop = "", last = 0;
-            do {
-                idx = p.indexOf(".", last);
-                temp = p.substring(last, idx !== -1 ? idx : undefined);
-                cur = cur[prop] || (cur[prop] = (!isNaN(parseInt(temp)) ? [] : {}));
-                prop = temp;
-                last = idx + 1;
-            } while (idx >= 0);
-            cur[prop] = data[p];
-        }
-        return result[""];
-    };
 
     Parser.flatten = function(data) {
         var result = {};
@@ -132,21 +114,37 @@
                 result[prop] = cur;
             } else if (Array.isArray(cur)) {
                 for (var i = 0, l = cur.length; i < l; i++)
-                    recurse(cur[i], prop ? prop + "." + i : "" + i);
-                if (l == 0)
-                    result[prop] = [];
+                    recurse(cur[i], prop ? prop + '.' + i : '' + i);
+                if (l === 0) result[prop] = [];
             } else {
                 var isEmpty = true;
                 for (var p in cur) {
                     isEmpty = false;
-                    recurse(cur[p], prop ? prop + "." + p : p);
+                    recurse(cur[p], prop ? prop + '.' + p : p);
                 }
-                if (isEmpty)
-                    result[prop] = {};
+                if (isEmpty) result[prop] = {};
             }
         }
-        recurse(data, "");
+        recurse(data, '');
         return result;
+    };
+
+    Parser.unflatten = function(data) {
+        if (Object(data) !== data || Array.isArray(data))
+            return data;
+        var result = {}, cur, prop, idx, last, temp;
+        for (var p in data) {
+            cur = result, prop = '', last = 0;
+            do {
+                idx = p.indexOf('.', last);
+                temp = p.substring(last, idx !== -1 ? idx : undefined);
+                cur = cur[prop] || (cur[prop] = (!isNaN(parseInt(temp)) ? [] : {}));
+                prop = temp;
+                last = idx + 1;
+            } while (idx >= 0);
+            cur[prop] = data[p];
+        }
+        return result[''];
     };
 
     /**
@@ -171,8 +169,11 @@
     // CONSTRUCTOR
     ///////////////////////////////////////////////////
 
-    var options = {
-
+    var OPTIONS = {
+        attributes: ['schema', 'transforms', 'flattened', 'matchers',
+            'transformers', 'processors', 'preprocessors', 'postprocessors',
+            'handledKeys'
+        ]
     };
 
     /**
@@ -193,7 +194,7 @@
      * Make default options available so we
      * can override.
      */
-    Go2o.DEFAULTS = options;
+    Go2o.DEFAULTS = OPTIONS;
 
     ///////////////////////////////////////////////////
     // PUBLIC METHODS
@@ -207,21 +208,9 @@
 
         _extend(this, config);
 
-
-        var attributes = ['schema', 'transforms', 'flattened', 'matchers',
-            'transformers', 'processors', 'preprocessors', 'postprocessors',
-            'handledKeys'
-        ];
-
-        attributes.forEach(function(prop) {
+        OPTIONS.attributes.forEach(function(prop) {
             this.hasOwnProperty(prop) || (this[prop] = {});
         }, this);
-
-        this.typeMap = {
-            'String': 'transformers',
-            'RegExp': 'matchers',
-            'Function': 'processors'
-        };
 
         /*****************************************
          * ADDING SAMPLE TRANSFORMATIONS. MOVE OUT
@@ -276,7 +265,7 @@
         });*/
 
         this.addPreprocessor('flattenPaths', function() {
-            console.warn('flattenPaths')
+            console.warn('flattenPaths');
             this.flattened = Parser.flatten(this.source);
         });
 
@@ -304,7 +293,7 @@
         this.output = {};
 
         //Iterate over the source properties in schema:
-        Object.keys(this.transforms).forEach(this.applyTransformTo.bind(this));
+        Object.keys(this.transforms).forEach(this.applyTransformTo, this);
 
         //after we run all trasforms, we should pic all properties of
         //original object and append those to the output.
@@ -321,24 +310,10 @@
         //for now we assume that all schema values are objs.
         Object.keys(rules).forEach(function(event) {
             arg = rules[event];
-
             if (this.transformers.hasOwnProperty(event)) {
                 handled = this.transformers[event].call(this, path, arg);
                 if (handled === true) this.handledKeys[path] = true;
             }
-
-            //TODO: We can inline this in run, collect all matchers.
-            /*var regexp;
-            Object.keys(this.matchers).forEach(function(matcher){
-                //TODO: Clean up...we should be storing objects id => matcher.
-                regexp = new RegExp(matcher.replace('/','').replace('/',''));
-
-                if( ! path.match(regexp)) return;
-
-                handled = this.matchers[matcher].call(this, path, arg);
-
-                if(handled === true) this.handledKeys[path] = true;
-            }, this);*/
         }, this);
     };
 
@@ -362,10 +337,7 @@
      * @param {this}
      */
     Go2o.prototype.addTransformer = function(event, transformer) {
-        var eventType = event.constructor.name; // this, fails in <IE9, shim
-        var holder = this.typeMap[eventType];
-        this[holder][event] = transformer;
-
+        this.transformers[event] = transformer;
         //WE REALLY WANT TO DO THIS WITH EVENTS!!
         // this.on(transformer.key, transformer.execute);
         return this;
