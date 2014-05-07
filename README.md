@@ -66,3 +66,11 @@ _(Nothing yet)_
 - Each transformer should have it's own scope.
 - Merge validation. Have a handler for config key `transforms` and one for `validations`.
 
+### Template Functions
+Consider using templated Function accessors:
+
+```javascript
+var get = new Function("obj", "return obj.payload.committee.amendments[1];");
+var out = get(go.source);
+console.log(out) //{_id:"5323423523452352", name:"Pet Control"...}
+```
