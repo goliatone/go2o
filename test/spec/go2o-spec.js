@@ -158,7 +158,7 @@ define(function(require) {
             expect(Go2o.helpers.Parser.glob).toBeOfType('function');
         });
 
-        it('flatten medthod should take an object and return a map with string paths to values', function() {
+        it('flatten method should take an object and return a map with string paths to values', function() {
             var source = [{
                 "impact": {
                     "id": "1",
@@ -190,7 +190,7 @@ define(function(require) {
             expect(Parser.flatten(source)).toMatchObject(expected);
         });
 
-        it('unflatten medthod should take a map with string paths and return an object', function() {
+        it('unflatten method should take a map with string paths and return an object', function() {
             var expected = [{
                 "impact": {
                     "id": "1",
