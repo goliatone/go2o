@@ -267,6 +267,12 @@
             this.hasOwnProperty(prop) || (this[prop] = {});
         }, this);
 
+        this.initializeProcessors();
+
+        this.registerDefaultTransformations();
+    };
+
+    Go2o.prototype.initializeProcessors = function() {
         /*
          * We need to ensure that we kick start
          * pre/post collections.
@@ -276,9 +282,6 @@
 
         this.post || (this.post = []);
         this.post = _unique(this.post.concat(this.defaultPost));
-
-
-        this.registerDefaultTransformations();
     };
 
     Go2o.prototype.registerDefaultTransformations = function() {
