@@ -35,7 +35,7 @@
             return mod;
         };
     }
-}(this, "go2o", function() {
+}(this, 'go2o', function() {
 
     /**
      * Extend method.
