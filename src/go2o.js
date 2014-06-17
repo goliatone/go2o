@@ -241,6 +241,8 @@
         this.init(config);
     };
 
+    Go2o.VERSION = '0.3.0';
+
     /**
      * Make default options available so we
      * can override.
