@@ -201,9 +201,7 @@ define(['go2o', 'jquery'], function(Go2o, $) {
          * Schema holds the transformations
          * we want to apply.
          */
-        var schema = {
-            pre: ['flattenPaths', 'renameAllIds', 'unwrapProvisions'],
-            post: ['mergeOrphans', 'unflattenPaths'],
+        /*var schema = {
             preprocessors: {
                 renameAllIds: function() {
                     Object.keys(this.flattened).forEach(function(path) {
@@ -273,8 +271,98 @@ define(['go2o', 'jquery'], function(Go2o, $) {
         };
         var go = new Go2o(schema),
             output = go.run(data);
-
-        window.go = go;
         console.log('We have new output', output);
+        window.go = go;*/
+        window.Go2o = Go2o;
+
+
+        function testing() {
+            var schema = {
+                transforms: {
+                    'amendments.#.impacts.#.impact': {
+                        rename: {
+                            glob: true,
+                            matcher: /amendments\.(\d+)\.impacts\.(\d+)\.impact/,
+                            execute: function(key, path, options) {
+                                return key.replace('.impact.', '.');
+                            }
+                        }
+                    }
+                }
+            };
+            var source = {
+                amendments: [{
+                    id: 1,
+                    impacts: [{
+                        id: 1,
+                        impact: {
+                            id: 11,
+                            type: 'impact'
+                        }
+                    }, {
+                        id: 2,
+                        impact: {
+                            id: 22,
+                            type: 'impact'
+                        }
+                    }]
+                }, {
+                    id: 2,
+                    impacts: [{
+                        id: 3,
+                        impact: {
+                            id: 33,
+                            type: 'impact'
+                        }
+                    }, {
+                        id: 4,
+                        impact: {
+                            id: 44,
+                            type: 'impact'
+                        }
+                    }]
+                }]
+            };
+
+            var target = {
+                amendments: [{
+                    id: 1,
+                    impacts: [{
+
+                        id: 1,
+                        //id:11,
+                        type: 'impact'
+                    }, {
+                        id: 2,
+                        //id:22,
+                        type: 'impact'
+                    }]
+                }, {
+                    id: 2,
+                    impacts: [{
+                        id: 3,
+                        //id:33,
+                        type: 'impact'
+
+                    }, {
+                        id: 4,
+                        //id:44,
+                        type: 'impact'
+
+                    }]
+                }]
+            };
+            var go = new Go2o(schema);
+            var output = go.run(source);
+            console.log('source')
+            console.log(Go2o.helpers.Parser.flatten(source));
+            console.log('output')
+            console.log(Go2o.helpers.Parser.flatten(output));
+
+            window.go = go;
+            return output;
+        }
+        testing();
+        window.test = testing;
     }
 });
