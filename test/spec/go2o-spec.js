@@ -160,30 +160,30 @@ define(function(require) {
 
         it('flatten method should take an object and return a map with string paths to values', function() {
             var source = [{
-                "impact": {
-                    "id": "1",
-                    "name": "Taxes",
-                    "direction": "UP"
+                'impact': {
+                    'id': '1',
+                    'name': 'Taxes',
+                    'direction': 'UP'
                 },
-                "explanation": "Lorem ipsum"
+                'explanation': 'Lorem ipsum'
             }, {
-                "impact": {
-                    "id": "2",
-                    "name": "Jobs",
-                    "direction": "UP"
+                'impact': {
+                    'id': '2',
+                    'name': 'Jobs',
+                    'direction': 'UP'
                 },
-                "explanation": "Lorem ipsum"
+                'explanation': 'Lorem ipsum'
             }];
 
             var expected = {
-                "0.impact.id": "1",
-                "0.impact.name": "Taxes",
-                "0.impact.direction": "UP",
-                "0.explanation": "Lorem ipsum",
-                "1.impact.id": "2",
-                "1.impact.name": "Jobs",
-                "1.impact.direction": "UP",
-                "1.explanation": "Lorem ipsum"
+                '0.impact.id': '1',
+                '0.impact.name': 'Taxes',
+                '0.impact.direction': 'UP',
+                '0.explanation': 'Lorem ipsum',
+                '1.impact.id': '2',
+                '1.impact.name': 'Jobs',
+                '1.impact.direction': 'UP',
+                '1.explanation': 'Lorem ipsum'
             };
             var Parser = Go2o.helpers.Parser;
 
@@ -192,30 +192,30 @@ define(function(require) {
 
         it('unflatten method should take a map with string paths and return an object', function() {
             var expected = [{
-                "impact": {
-                    "id": "1",
-                    "name": "Taxes",
-                    "direction": "UP"
+                'impact': {
+                    'id': '1',
+                    'name': 'Taxes',
+                    'direction': 'UP'
                 },
-                "explanation": "Lorem ipsum"
+                'explanation': 'Lorem ipsum'
             }, {
-                "impact": {
-                    "id": "2",
-                    "name": "Jobs",
-                    "direction": "UP"
+                'impact': {
+                    'id': '2',
+                    'name': 'Jobs',
+                    'direction': 'UP'
                 },
-                "explanation": "Lorem ipsum"
+                'explanation': 'Lorem ipsum'
             }];
 
             var source = {
-                "0.impact.id": "1",
-                "0.impact.name": "Taxes",
-                "0.impact.direction": "UP",
-                "0.explanation": "Lorem ipsum",
-                "1.impact.id": "2",
-                "1.impact.name": "Jobs",
-                "1.impact.direction": "UP",
-                "1.explanation": "Lorem ipsum"
+                '0.impact.id': '1',
+                '0.impact.name': 'Taxes',
+                '0.impact.direction': 'UP',
+                '0.explanation': 'Lorem ipsum',
+                '1.impact.id': '2',
+                '1.impact.name': 'Jobs',
+                '1.impact.direction': 'UP',
+                '1.explanation': 'Lorem ipsum'
             };
             var Parser = Go2o.helpers.Parser;
 
@@ -224,14 +224,14 @@ define(function(require) {
 
         it('glob should filter a map properties using a regexp', function() {
             var source = {
-                "0.impact.id": "1",
-                "0.impact.name": "Taxes",
-                "0.impact.direction": "UP",
-                "0.explanation": "Lorem ipsum",
-                "1.impact.id": "2",
-                "1.impact.name": "Jobs",
-                "1.impact.direction": "UP",
-                "1.explanation": "Lorem ipsum"
+                '0.impact.id': '1',
+                '0.impact.name': 'Taxes',
+                '0.impact.direction': 'UP',
+                '0.explanation': 'Lorem ipsum',
+                '1.impact.id': '2',
+                '1.impact.name': 'Jobs',
+                '1.impact.direction': 'UP',
+                '1.explanation': 'Lorem ipsum'
             };
             var pattern = /\d+\.explanation/;
             var expected = {
