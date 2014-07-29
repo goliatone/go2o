@@ -88,15 +88,6 @@ module.exports = function(grunt) {
             },
             server: '.tmp'
         },
-        jshint: {
-            options: {
-                jshintrc: '.jshintrc'
-            },
-            all: [
-                'Gruntfile.js',
-                '<%= config.src %>/{,*/}*.js'
-            ]
-        },
         karma: {
             options: {
                 configFile: 'karma.conf.js',
@@ -180,7 +171,6 @@ module.exports = function(grunt) {
 
     grunt.registerTask('build', [
         'clean:dist',
-        'jshint',
         'test',
         'concat',
         'copy',
