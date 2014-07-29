@@ -230,6 +230,9 @@
     /**
      * Go2o constructor
      *
+     * TODO: Life cycle.
+     * - 1) Apply filters: ensure we don't have invalid data.
+     * - 2) Flatten
      * @param  {object} config Configuration object.
      */
     var Go2o = function(config) {
@@ -395,6 +398,7 @@
     Go2o.prototype.run = function(data) {
         console.log('parsing', data);
 
+        this.original = data;
         this.source = _extend({}, data);
 
         //this is a reset
