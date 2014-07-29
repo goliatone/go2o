@@ -74,3 +74,7 @@ var get = new Function("obj", "return obj.payload.committee.amendments[1];");
 var out = get(go.source);
 console.log(out) //{_id:"5323423523452352", name:"Pet Control"...}
 ```
+
+TODO:
+Integrate libraries:
+http://highlandjs.org/
