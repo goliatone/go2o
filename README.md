@@ -65,6 +65,7 @@ _(Nothing yet)_
 - ~~Implement conflict resolution. If we collapse one object into its parent and they have conflicting properties, who do we handle that?~~ NOTE: Per case is not defined.
 - Each transformer should have it's own scope.
 - Merge validation. Have a handler for config key `transforms` and one for `validations`.
+- Use expression filters: https://github.com/joewalnes/filtrex
 
 ### Template Functions
 Consider using templated Function accessors:
